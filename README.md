@@ -68,6 +68,19 @@ You don't invoke anything. Prompt normally; the workflow fires on **delegation-s
 
 Each project declares its risk tier in `<project>/.claude/workflow.md` — template in [`templates/workflow.md`](templates/workflow.md). If the file is missing, `task-router` infers a tier, asks you once, and writes it. The tier shifts the entire review ladder, so coursework never pays production-grade overhead and production paths never get coursework-grade review.
 
+## Carrying the rest of your setup
+
+The kit installs only its own four skills. Your wider Claude Code environment — plugins (memory systems, review tooling, design skills…) and personal skills in `~/.claude/skills/` — lives in `~/.claude/settings.json` and doesn't transfer by itself. Two scripts close that gap:
+
+```bash
+./scripts/export-setup.sh   # on your current machine → writes my-setup/
+./scripts/import-setup.sh   # on the new machine → merges it in
+```
+
+Export captures your plugin/marketplace declarations, personal skills (minus the kit's own), and global `CLAUDE.md`. Import merges the plugin config into the target's `settings.json` (backup taken, local entries win on conflict), copies skills without overwriting, and never touches an existing `CLAUDE.md`.
+
+`my-setup/` is **gitignored** — your personal configuration stays out of this repo. Move it between machines however you like, or commit it on a private fork. Two caveats: plugin *data* doesn't transfer (a memory plugin's database stays where it was), and if a declared plugin doesn't activate on first launch, the import script prints the exact `/plugin` commands to finish interactively.
+
 ## Requirements
 
 - Claude Code with plugin support.
