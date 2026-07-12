@@ -1,16 +1,16 @@
 {
   "name": "claude-workflow-kit",
   "owner": {
-    "name": "Ricky"
+    "name": "cwaku"
   },
   "metadata": {
-    "description": "Multi-model orchestration workflow: tier/level task routing, Codex dual sign-off, model-agnostic checkpoints",
+    "description": "Multi-model orchestration workflow: tier/level task routing, independent dual sign-off at plans and phase gates, model-agnostic checkpoints",
     "homepage": "https://github.com/cwaku/claude-workflow-kit"
   },
   "plugins": [
     {
       "name": "workflow-kit",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source": "./plugin",
       "description": "Task routing rubric (project tier × task level), Codex plan/gate reviews with 2-cycle caps, and handoff checkpoints for resumable orchestration"
     }
