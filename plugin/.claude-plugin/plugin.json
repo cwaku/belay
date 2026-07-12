@@ -1,0 +1,17 @@
+{
+  "name": "workflow-kit",
+  "version": "0.1.0",
+  "description": "Multi-model orchestration workflow: route subagent work by project tier and task level (Sonnet/Opus/Fable), get independent Codex review at plans and phase gates, and keep orchestration state resumable across sessions and models",
+  "author": {
+    "name": "Ricky"
+  },
+  "repository": "https://github.com/cwaku/claude-workflow-kit",
+  "keywords": [
+    "orchestration",
+    "model-routing",
+    "code-review",
+    "codex",
+    "checkpoint",
+    "multi-model"
+  ]
+}
