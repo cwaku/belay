@@ -73,13 +73,15 @@ Each project declares its risk tier in `<project>/.claude/workflow.md` — templ
 The kit installs only its own four skills. Your wider Claude Code environment — plugins (memory systems, review tooling, design skills…) and personal skills in `~/.claude/skills/` — lives in `~/.claude/settings.json` and doesn't transfer by itself. Two scripts close that gap:
 
 ```bash
-./scripts/export-setup.sh   # on your current machine → writes my-setup/
-./scripts/import-setup.sh   # on the new machine → merges it in
+./scripts/export-setup.sh                  # on your current machine → writes my-setup/
+./scripts/import-setup.sh                  # on the new machine → interactive picker
+./scripts/import-setup.sh --recommended    # non-interactive: only workflow-paired plugins
+./scripts/import-setup.sh --all            # non-interactive: everything
 ```
 
-Export captures your plugin/marketplace declarations, personal skills (minus the kit's own), and global `CLAUDE.md`. Import merges the plugin config into the target's `settings.json` (backup taken, local entries win on conflict), copies skills without overwriting, and never touches an existing `CLAUDE.md`.
+Export captures your plugin/marketplace declarations, personal skills (minus the kit's own), and global `CLAUDE.md`. Import is **interactive by default**: it walks each plugin and skill with an accept/skip prompt, marking the ones that pair with this workflow — `superpowers` (plan-execution discipline), `claude-mem` (cross-session memory that checkpoints benefit from), `code-review` (the internal pass the Codex gate runs alongside) — as `[recommended]` with default-yes; everything else defaults to no, so someone using *your* dotfiles installs your taste deliberately, not accidentally. Merging takes a settings backup, local entries win on conflict, existing skills and `CLAUDE.md` are never overwritten, and only the marketplaces your chosen plugins actually need are declared.
 
-`my-setup/` is **gitignored** — your personal configuration stays out of this repo. Move it between machines however you like, or commit it on a private fork. Two caveats: plugin *data* doesn't transfer (a memory plugin's database stays where it was), and if a declared plugin doesn't activate on first launch, the import script prints the exact `/plugin` commands to finish interactively.
+**Publishing `my-setup/` as public dotfiles** is a supported path: the export contains no secrets by construction (plugin names, marketplace repos, skill instructions — scan yours before publishing anyway: `grep -rniE "api[_-]?key|secret|token|password" my-setup/`). It's gitignored *here* so this repo stays generic; copy it to your dotfiles repo and point people at these scripts. One genuine caveat for public dotfiles: exported skills are often **vendored third-party work** — keep their attribution lines and check the upstream license before redistributing. And two operational caveats: plugin *data* doesn't transfer (a memory plugin's database stays where it was), and marketplaces that were added interactively on the source machine can't be exported from settings — the import script detects those and prints the exact `/plugin` commands to finish.
 
 ## Requirements
 
