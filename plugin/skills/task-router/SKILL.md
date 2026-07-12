@@ -22,9 +22,9 @@ checkpoint-file: <path, default PROGRESS.md or .superpowers/sdd/progress.md if S
 
 | Tier | Definition | Examples |
 |------|-----------|----------|
-| **T1 Production** | Real money, real users, credentials, or irreversible data. Failure has external cost. | quant-portfolio (live trading), scanbox_api if deployed |
-| **T2 Personal product** | Apps you intend to keep/ship but nothing external breaks yet. | billflow, debitty, pre-launch projects |
-| **T3 Throwaway / coursework** | Assignments, experiments, one-offs. Correct-enough beats hardened. | SAIT coursework, student portal, demos |
+| **T1 Production** | Real money, real users, credentials, or irreversible data. Failure has external cost. | A deployed SaaS API, a live trading system, anything holding customer data |
+| **T2 Personal product** | Apps you intend to keep/ship but nothing external breaks yet. | Pre-launch side projects, internal tools |
+| **T3 Throwaway / coursework** | Assignments, experiments, one-offs. Correct-enough beats hardened. | School assignments, prototypes, demos, spikes |
 
 ## Step 2 — Level the task
 
