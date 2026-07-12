@@ -1,6 +1,6 @@
 {
   "name": "workflow-kit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Multi-model orchestration workflow: route subagent work by project tier and task level (Sonnet/Opus/Fable), get independent Codex review at plans and phase gates, and keep orchestration state resumable across sessions and models",
   "author": {
     "name": "cwaku"

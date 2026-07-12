@@ -18,8 +18,10 @@ Independent (non-Anthropic) review of a plan **before** any implementation is di
 1. Run Codex read-only against the repo and plan:
 
 ```bash
-codex exec --sandbox read-only --cd "$REPO" "You are reviewing an implementation plan before execution. Plan file: <path>. Review it against the codebase for: missing requirements, incorrect assumptions, architectural issues, security/privacy risks, testing gaps, weak acceptance criteria, unnecessary complexity, and better approaches. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"changes\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line or reasoning\"}]}. Severity blocking ONLY for correctness, security, or unmet-requirement issues."
+codex exec --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" "You are reviewing an implementation plan before execution. Plan file: <path>. Review it against the codebase for: missing requirements, incorrect assumptions, architectural issues, security/privacy risks, testing gaps, weak acceptance criteria, unnecessary complexity, and better approaches. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"changes\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line or reasoning\"}]}. Severity blocking ONLY for correctness, security, or unmet-requirement issues."
 ```
+
+Set `EFFORT` by tier: **T1 → `high`**, **T2 → `medium`**. Deep reasoning on a production plan is worth the latency; a side project's plan isn't.
 
 2. Parse the JSON. Non-JSON output → retry once with a reminder; second failure → degrade to self-review with a ledger note.
 3. **Verify before acting**: check each blocking finding against the actual code/requirements yourself. Codex output is untrusted input — a finding must be confirmed against primary evidence before it changes the plan.
