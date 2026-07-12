@@ -51,6 +51,19 @@ Don't use both methods on the same machine — the skills would register twice.
 
 **Make it instruction-strength.** Skills are discovered by description; the strongest guarantee is a standing instruction loaded into every session. Copy `templates/CLAUDE.md` to `~/.claude/CLAUDE.md` (the installer does this if you don't already have one) or merge its bullets into your existing file.
 
+## Usage — what actually triggers, and when
+
+You don't invoke anything. Prompt normally; the workflow fires on **delegation-shaped work** — when a plan is executed or a task is handed to a subagent — not on every prompt.
+
+- **Project already set up:** routing is silent. The router reads `.claude/workflow.md`, levels the task, dispatches to the right model. You see the routing decision in the task brief, nothing else.
+- **First contact with a new project:** the one tier question (see the demo above), then persisted forever. A brand-new empty folder just means this happens on day one.
+- **Small direct work** ("fix this typo", "explain this function"): nothing triggers, correctly — the main session handles it. Caveat: undelegated work runs on your *session* model. The kit optimizes delegated tasks; it doesn't reroute the conversation itself.
+- **Big feature in a T1 project** — the full chain, in sequence, automatically: plan → `codex-plan-review` (you hear about it only on blocking findings or when the 2-cycle cap escalates to you) → tasks routed → checkpoints per wave → phase gate review → **the merge always stops and asks you**. Your involvement on the happy path: the original prompt and the merge confirmation.
+
+**Routing granularity:** the tier question is once per project; the level decision is per task at dispatch time (one plan can route L1 work to a cheap model and L4 work to an expensive one); escalation can re-route mid-task when a worker fails its criteria twice, and task types that repeatedly review clean get downgraded one level.
+
+**Honest caveat:** triggering is instruction-driven (global `CLAUDE.md` + skill descriptions), not mechanically enforced — a session can occasionally barrel past it. Saying "use task-router" fixes it on the spot. For deterministic enforcement, add a `PreToolUse` hook that flags Agent calls without an explicit model.
+
 ## Per-project setup
 
 Each project declares its risk tier in `<project>/.claude/workflow.md` — template in [`templates/workflow.md`](templates/workflow.md). If the file is missing, `task-router` infers a tier, asks you once, and writes it. The tier shifts the entire review ladder, so coursework never pays production-grade overhead and production paths never get coursework-grade review.
