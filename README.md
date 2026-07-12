@@ -19,6 +19,10 @@ Most Claude Code setups run every subagent on the session's (often most expensiv
 
 ## What it looks like
 
+![task-router first contact: infers the tier, asks once, persists workflow.md, routes the task to Sonnet](docs/demo.gif)
+
+*Animated rendering of a real session ([full transcript](docs/demo.md); replay locally with `asciinema play docs/demo.cast`).*
+
 First contact with an untiered project costs exactly one question, once:
 
 > **User:** Add CSV export for invoices in billflow.
