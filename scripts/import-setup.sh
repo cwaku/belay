@@ -7,12 +7,13 @@
 # Flags:
 #   --all           install everything without prompting
 #   --recommended   install only the recommended plugins (+ all skills) without prompting
+#   --from DIR      read the setup from DIR (e.g. a cloned dotfiles repo)
+#                   instead of ./my-setup
 set -euo pipefail
 
 command -v jq >/dev/null || { echo "jq is required"; exit 1; }
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="${ROOT}/my-setup"
 SETTINGS="${HOME}/.claude/settings.json"
 
 # Plugins that pair with workflow-kit (matched on the part before '@'):
@@ -22,14 +23,18 @@ SETTINGS="${HOME}/.claude/settings.json"
 RECOMMENDED=(superpowers claude-mem code-review)
 
 MODE="interactive"
-case "${1:-}" in
-  --all) MODE="all" ;;
-  --recommended) MODE="recommended" ;;
-  "") ;;
-  *) echo "usage: $0 [--all|--recommended]"; exit 1 ;;
-esac
+SRC="${ROOT}/my-setup"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --all) MODE="all" ;;
+    --recommended) MODE="recommended" ;;
+    --from) SRC="$(cd "$2" && pwd)"; shift ;;
+    *) echo "usage: $0 [--all|--recommended] [--from DIR]"; exit 1 ;;
+  esac
+  shift
+done
 
-[ -d "$SRC" ] || { echo "no my-setup/ found — run export-setup.sh on the source machine first"; exit 1; }
+[ -d "$SRC" ] || { echo "no setup found at ${SRC} — run export-setup.sh on the source machine first, or pass --from DIR"; exit 1; }
 
 if [ "$MODE" = "interactive" ] && [ ! -t 0 ]; then
   echo "No TTY for prompts. Re-run with --all or --recommended."
