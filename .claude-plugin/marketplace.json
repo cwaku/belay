@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "workflow-kit",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "source": "./plugin",
       "description": "Task routing rubric (project tier × task level), Codex plan/gate reviews with 2-cycle caps, and handoff checkpoints for resumable orchestration"
     }
