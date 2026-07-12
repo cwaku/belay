@@ -17,6 +17,16 @@ Most Claude Code setups run every subagent on the session's (often most expensiv
 | `codex-gate-review` | Dual sign-off at phase gates and L4 tasks only. The reviewer receives the real diff, executed test output, and acceptance criteria — never summaries. Credentials are redacted from the package; a reviewer outage degrades gracefully and never blocks shipping. |
 | `handoff-checkpoint` | Model-agnostic orchestration snapshots: task graph with status, decisions, validation state, and a mandatory "next action" line. The resume protocol checks git for existing commits before redispatching anything, so takeover is idempotent. |
 
+## What it looks like
+
+First contact with an untiered project costs exactly one question, once:
+
+> **User:** Add CSV export for invoices in billflow.
+>
+> **Claude:** Billflow has no `.claude/workflow.md` yet — inferring **T2 Personal product**, confirm? *(user confirms)* Persisted. Routing: L2 Standard → **Sonnet, medium effort**, spot-check review only — no gate ceremony, because a pre-launch app at L2 doesn't earn any.
+
+Full transcript from a real session: [docs/demo.md](docs/demo.md).
+
 ## Install
 
 **Plugin (preferred).** In Claude Code:
