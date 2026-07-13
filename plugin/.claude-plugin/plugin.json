@@ -1,7 +1,7 @@
 {
   "name": "belay",
   "version": "0.6.0",
-  "description": "Risk-tiered protection for AI-driven development: route subagent work by project tier and task level, get an independent second on plans and phase gates, and anchor orchestration state so any session can resume without losing ground",
+  "description": "Risk-tiered protection for AI-driven development: route subagent work by project tier and task level, get an independent review at plans and phase gates, and keep orchestration state resumable by any session on any model",
   "author": {
     "name": "cwaku"
   },

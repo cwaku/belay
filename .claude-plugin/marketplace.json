@@ -4,7 +4,7 @@
     "name": "cwaku"
   },
   "metadata": {
-    "description": "Belay — risk-tiered protection for AI-driven development: task routing, independent review gates, resumable checkpoints",
+    "description": "Belay: sensible protection for AI-driven development. Task routing, independent review gates, resumable checkpoints",
     "homepage": "https://github.com/cwaku/belay"
   },
   "plugins": [
@@ -12,7 +12,7 @@
       "name": "belay",
       "version": "0.6.0",
       "source": "./plugin",
-      "description": "Route every delegated task by risk tier × complexity level, put an independent second on plans and phase gates, and anchor progress with resumable checkpoints"
+      "description": "Route every delegated task by risk tier × complexity level, get an independent review at plans and phase gates, and keep progress resumable with checkpoints"
     }
   ]
 }
