@@ -17,9 +17,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SETTINGS="${HOME}/.claude/settings.json"
 
 # Plugins that pair with Belay (matched on the part before '@'):
-#   superpowers — plan-execution discipline the router hooks into
-#   claude-mem  — cross-session memory; checkpoints benefit from recall
-#   code-review — the internal review pass the Codex gate runs alongside
+#   superpowers, plan-execution discipline the router hooks into
+#   claude-mem , cross-session memory; checkpoints benefit from recall
+#   code-review, the internal review pass the Codex gate runs alongside
 RECOMMENDED=(superpowers claude-mem code-review)
 
 MODE="interactive"
@@ -34,7 +34,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-[ -d "$SRC" ] || { echo "no setup found at ${SRC} — run export-setup.sh on the source machine first, or pass --from DIR"; exit 1; }
+[ -d "$SRC" ] || { echo "no setup found at ${SRC}, run export-setup.sh on the source machine first, or pass --from DIR"; exit 1; }
 
 if [ "$MODE" = "interactive" ] && [ ! -t 0 ]; then
   echo "No TTY for prompts. Re-run with --all or --recommended."
@@ -64,12 +64,12 @@ if [ -f "${SRC}/plugins.json" ]; then
     [ "$enabled" = "true" ] || continue
     tag=""
     def="n"
-    if is_recommended "$key"; then tag="  [recommended — pairs with Belay]"; def="y"; fi
+    if is_recommended "$key"; then tag="  [recommended, pairs with Belay]"; def="y"; fi
     case "$MODE" in
       all) CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}" ;;
       recommended) if [ "$def" = "y" ]; then CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}"; fi ;;
       interactive)
-        if ask "  ${key}${tag} — install? [${def^}/$([ "$def" = y ] && echo n || echo y)]" "$def"; then
+        if ask "  ${key}${tag}, install? [${def^}/$([ "$def" = y ] && echo n || echo y)]" "$def"; then
           CHOSEN_PLUGINS+=("$key")
         fi ;;
     esac
@@ -96,12 +96,12 @@ if [ "${#CHOSEN_PLUGINS[@]}" -gt 0 ]; then
     echo "created ${SETTINGS} with ${#CHOSEN_PLUGINS[@]} plugin(s)"
   fi
   # Warn about plugins whose marketplace isn't declared in settings (it was
-  # added interactively on the source machine) — they need one manual step.
+  # added interactively on the source machine), they need one manual step.
   for key in "${CHOSEN_PLUGINS[@]}"; do
     mp="${key#*@}"
     [ "$mp" = "claude-plugins-official" ] && continue
     if ! jq -e --arg m "$mp" '.extraKnownMarketplaces[$m]' "${SRC}/plugins.json" >/dev/null; then
-      echo "  ! ${key}: marketplace '${mp}' not in exported settings —"
+      echo "  ! ${key}: marketplace '${mp}' not in exported settings."
       echo "    run: /plugin marketplace add <owner>/<repo for ${mp}>  then  /plugin install ${key}"
     fi
   done
@@ -117,24 +117,24 @@ if [ -d "${SRC}/skills" ]; then
     [ -d "$dir" ] || continue
     name="$(basename "$dir")"
     if [ -d "${HOME}/.claude/skills/${name}" ]; then
-      echo "  = ${name} already present — skipped"
+      echo "  = ${name} already present, skipped"
       continue
     fi
     if [ "$MODE" = "interactive" ]; then
-      ask "  skill ${name} — install? [Y/n]" "y" || continue
+      ask "  skill ${name}, install? [Y/n]" "y" || continue
     fi
     cp -r "$dir" "${HOME}/.claude/skills/${name}"
     echo "  + installed ${name}"
   done
 fi
 
-# --- 4. Global CLAUDE.md — never overwrite ------------------------------------
+# --- 4. Global CLAUDE.md, never overwrite ------------------------------------
 if [ -f "${SRC}/CLAUDE.md" ] && [ ! -f "${HOME}/.claude/CLAUDE.md" ]; then
   cp "${SRC}/CLAUDE.md" "${HOME}/.claude/CLAUDE.md"
   echo "installed global CLAUDE.md"
 fi
 
 echo
-echo "Done. Start Claude Code — it fetches declared marketplaces on launch."
+echo "Done. Start Claude Code, it fetches declared marketplaces on launch."
 echo "If a plugin doesn't activate automatically:"
 echo "  /plugin marketplace add <marketplace>   then   /plugin install <name>@<marketplace>"

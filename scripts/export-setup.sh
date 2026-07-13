@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Export this machine's wider Claude Code setup (plugins + personal skills +
 # global CLAUDE.md) into my-setup/ so import-setup.sh can replicate it on
-# another machine. my-setup/ is gitignored — your setup stays out of the repo
+# another machine. my-setup/ is gitignored, your setup stays out of the repo
 # unless you deliberately commit it (e.g. on a private fork).
 set -euo pipefail
 
@@ -28,7 +28,7 @@ else
   echo "no ${SETTINGS} found; wrote empty plugin config"
 fi
 
-# 2. Personal skills (everything in ~/.claude/skills except the kit's own —
+# 2. Personal skills (everything in ~/.claude/skills except Belay's own;
 #    those are managed by install.sh / the plugin).
 for dir in "${HOME}/.claude/skills"/*/; do
   [ -d "$dir" ] || continue
@@ -50,5 +50,5 @@ fi
 echo
 echo "Done. Copy my-setup/ to the new machine (or keep it on a private fork)"
 echo "and run scripts/import-setup.sh there."
-echo "NOTE: plugin *data* does not transfer — e.g. claude-mem's memory database"
+echo "NOTE: plugin *data* does not transfer, e.g. claude-mem's memory database"
 echo "stays on this machine; only the plugin installation carries over."

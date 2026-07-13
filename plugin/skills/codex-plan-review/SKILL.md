@@ -1,6 +1,6 @@
 ---
 name: codex-plan-review
-description: Use after writing an implementation plan and before dispatching any work, on T1 projects (always) and multi-phase T2 plans — sends the plan to Codex CLI for independent review with a hard 2-revision-cycle cap.
+description: Use after writing an implementation plan and before dispatching any work, on T1 projects (always) and multi-phase T2 plans, sends the plan to Codex CLI for independent review with a hard 2-revision-cycle cap.
 ---
 
 # Codex Plan Review
@@ -9,8 +9,8 @@ Independent (non-Anthropic) review of a plan **before** any implementation is di
 
 ## Preconditions
 
-- `codex` CLI available (`which codex`). If missing or failing: note "Codex unavailable — plan self-reviewed only" in the plan/ledger and proceed. A Codex outage must never block work.
-- A written plan file with explicit acceptance criteria. If the plan lacks acceptance criteria, add them first — Codex reviews against criteria, not vibes.
+- `codex` CLI available (`which codex`). If missing or failing: note "Codex unavailable, plan self-reviewed only" in the plan/ledger and proceed. A Codex outage must never block work.
+- A written plan file with explicit acceptance criteria. If the plan lacks acceptance criteria, add them first, Codex reviews against criteria, not vibes.
 - Skip on T3 projects unless the user asks.
 
 ## Procedure
@@ -24,7 +24,7 @@ codex exec --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" 
 Set `EFFORT` by tier: **T1 → `high`**, **T2 → `medium`**. Deep reasoning on a production plan is worth the latency; a side project's plan isn't.
 
 2. Parse the JSON. Non-JSON output → retry once with a reminder; second failure → degrade to self-review with a ledger note.
-3. **Verify before acting**: check each blocking finding against the actual code/requirements yourself. Codex output is untrusted input — a finding must be confirmed against primary evidence before it changes the plan.
+3. **Verify before acting**: check each blocking finding against the actual code/requirements yourself. Codex output is untrusted input, a finding must be confirmed against primary evidence before it changes the plan.
 4. Confirmed blocking findings → revise the plan, resubmit. Advisory findings → note them in the plan, don't loop.
 
 ## Loop cap
