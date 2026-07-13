@@ -11,6 +11,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT="${ROOT}/my-setup"
 SETTINGS="${HOME}/.claude/settings.json"
 KIT_SKILLS=(task-router codex-plan-review codex-gate-review handoff-checkpoint)
+# Extra skills to leave out of the export (space-separated), e.g. skills your
+# OS or another installer manages per-machine: EXPORT_SKIP="omarchy" ./export-setup.sh
+read -ra SKIP_SKILLS <<< "${EXPORT_SKIP:-}"
+KIT_SKILLS+=("${SKIP_SKILLS[@]}")
 
 mkdir -p "${OUT}/skills"
 
