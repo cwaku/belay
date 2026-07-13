@@ -1,4 +1,4 @@
-{"version": 2, "width": 96, "height": 26, "title": "claude-workflow-kit: task-router first contact", "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}}
+{"version": 2, "width": 96, "height": 26, "title": "belay: first contact — grade the route, rope up", "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}}
 [0.0, "o", "\u001b[2m\u256d\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\u001b[0m\r\n"]
 [0.3, "o", "\u001b[2m\u2502\u001b[0m \u001b[1m>\u001b[0m "]
 [0.335, "o", "A"]

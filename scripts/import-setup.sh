@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Interactive import of a setup exported by export-setup.sh: pick which
 # plugins and skills to install, with recommendations for the ones that pair
-# with workflow-kit. Merges chosen plugin config into ~/.claude/settings.json
+# with Belay. Merges chosen plugin config into ~/.claude/settings.json
 # (backup taken), copies chosen skills, installs global CLAUDE.md if absent.
 #
 # Flags:
@@ -16,7 +16,7 @@ command -v jq >/dev/null || { echo "jq is required"; exit 1; }
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SETTINGS="${HOME}/.claude/settings.json"
 
-# Plugins that pair with workflow-kit (matched on the part before '@'):
+# Plugins that pair with Belay (matched on the part before '@'):
 #   superpowers — plan-execution discipline the router hooks into
 #   claude-mem  — cross-session memory; checkpoints benefit from recall
 #   code-review — the internal review pass the Codex gate runs alongside
@@ -64,7 +64,7 @@ if [ -f "${SRC}/plugins.json" ]; then
     [ "$enabled" = "true" ] || continue
     tag=""
     def="n"
-    if is_recommended "$key"; then tag="  [recommended — pairs with workflow-kit]"; def="y"; fi
+    if is_recommended "$key"; then tag="  [recommended — pairs with Belay]"; def="y"; fi
     case "$MODE" in
       all) CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}" ;;
       recommended) if [ "$def" = "y" ]; then CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}"; fi ;;
