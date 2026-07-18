@@ -93,7 +93,7 @@ cd belay
 ./scripts/import-setup.sh --from ~/your-dotfiles --all           # everything you exported
 ```
 
-The script needs `jq` installed, backs up `~/.claude/settings.json` before merging, and won't overwrite an existing global `CLAUDE.md`, so it's safe to re-run if a step fails.
+The script installs `jq` for you if it's missing (via your system package manager), backs up `~/.claude/settings.json` before merging, and won't overwrite an existing global `CLAUDE.md`, so it's safe to re-run if a step fails.
 
 The importer walks through each plugin and skill and asks what you want. Three plugins pair well with Belay and default to yes: `superpowers` for plan-execution discipline, `claude-mem` for cross-session memory, and `code-review` for the internal pass the gate review runs alongside. Everything else defaults to no, so someone using your dotfiles adopts your setup deliberately rather than wholesale.
 
