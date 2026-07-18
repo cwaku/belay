@@ -83,7 +83,9 @@ ask() { # ask "<prompt>" <default y|n>
 CHOSEN_PLUGINS=()
 if [ -f "${SRC}/plugins.json" ]; then
   echo "── Plugins ──────────────────────────────────────────"
-  while IFS= read -r key; do
+  # Feed the loop from FD 3, not stdin, so the interactive `ask` below still
+  # reads your keypress from the terminal instead of the piped plugin names.
+  while IFS= read -r key <&3; do
     # only offer plugins that were enabled on the source machine
     enabled=$(jq -r --arg k "$key" '.enabledPlugins[$k]' "${SRC}/plugins.json")
     [ "$enabled" = "true" ] || continue
@@ -99,7 +101,7 @@ if [ -f "${SRC}/plugins.json" ]; then
           CHOSEN_PLUGINS+=("$key")
         fi ;;
     esac
-  done < <(jq -r '.enabledPlugins | keys[]' "${SRC}/plugins.json")
+  done 3< <(jq -r '.enabledPlugins | keys[]' "${SRC}/plugins.json")
 fi
 
 # --- 2. Merge chosen plugins + only the marketplaces they need ---------------
