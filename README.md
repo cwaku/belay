@@ -66,15 +66,34 @@ One honest caveat. Activation is instruction-driven, not mechanically enforced, 
 
 ## Moving to a new machine
 
-Belay installs only its own four skills. The rest of your environment (plugins, personal skills, your global `CLAUDE.md`) lives in `~/.claude/` and doesn't move by itself. Two scripts handle that:
+Belay installs only its own four skills. The rest of your environment (plugins, personal skills, your global `CLAUDE.md`) lives in `~/.claude/` and doesn't move by itself. Two scripts handle that: `export-setup.sh` bundles your setup on the old machine, `import-setup.sh` restores it on the new one.
+
+One thing to know first: **these scripts live in the belay repo, not in the marketplace plugin.** Installing belay from the marketplace gives you the four skills and nothing else. To export or import, you need a clone of this repo on that machine.
+
+**On your old machine**, from a belay clone:
 
 ```bash
-./scripts/export-setup.sh                    # on your current machine, writes my-setup/
-./scripts/import-setup.sh                    # on the new machine, interactive picker
-./scripts/import-setup.sh --recommended      # non-interactive, just the Belay-paired plugins
-./scripts/import-setup.sh --all              # non-interactive, everything
-./scripts/import-setup.sh --from ~/dotfiles  # read from a cloned dotfiles repo
+./scripts/export-setup.sh          # writes my-setup/ (plugin names, skills, CLAUDE.md)
 ```
+
+Commit `my-setup/` to a dotfiles repo and push it, so the new machine can pull it. (It contains no secrets by construction. See the publishing notes below.)
+
+**On your new machine**, where you've installed belay from the marketplace and cloned your dotfiles:
+
+```bash
+git clone https://github.com/cwaku/belay.git    # get the scripts; the plugin doesn't include them
+cd belay
+./scripts/import-setup.sh --from ~/your-dotfiles # point --from at your cloned dotfiles repo
+```
+
+`--from` is the flag that reads your setup from the cloned dotfiles repo instead of a local `my-setup/`. Two non-interactive shortcuts skip the picker:
+
+```bash
+./scripts/import-setup.sh --from ~/your-dotfiles --recommended   # just the Belay-paired plugins
+./scripts/import-setup.sh --from ~/your-dotfiles --all           # everything you exported
+```
+
+The script needs `jq` installed, backs up `~/.claude/settings.json` before merging, and won't overwrite an existing global `CLAUDE.md`, so it's safe to re-run if a step fails.
 
 The importer walks through each plugin and skill and asks what you want. Three plugins pair well with Belay and default to yes: `superpowers` for plan-execution discipline, `claude-mem` for cross-session memory, and `code-review` for the internal pass the gate review runs alongside. Everything else defaults to no, so someone using your dotfiles adopts your setup deliberately rather than wholesale.
 
