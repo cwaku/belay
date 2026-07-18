@@ -11,7 +11,32 @@
 #                   instead of ./my-setup
 set -euo pipefail
 
-command -v jq >/dev/null || { echo "jq is required"; exit 1; }
+# jq is required. Detect the system package manager and install it if missing.
+ensure_jq() {
+  command -v jq >/dev/null && return
+
+  echo "jq is not installed; attempting to install it..."
+  local sudo=""
+  if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null; then sudo="sudo"; fi
+
+  set +e
+  if   command -v apt-get >/dev/null; then $sudo apt-get update && $sudo apt-get install -y jq
+  elif command -v pacman  >/dev/null; then $sudo pacman -Sy --noconfirm jq
+  elif command -v dnf     >/dev/null; then $sudo dnf install -y jq
+  elif command -v yum     >/dev/null; then $sudo yum install -y jq
+  elif command -v zypper  >/dev/null; then $sudo zypper --non-interactive install jq
+  elif command -v apk     >/dev/null; then $sudo apk add jq
+  elif command -v brew    >/dev/null; then brew install jq
+  else
+    echo "no supported package manager found. Install jq manually, then re-run."
+    exit 1
+  fi
+  set -e
+
+  command -v jq >/dev/null || { echo "jq install failed. Install it manually, then re-run."; exit 1; }
+  echo "jq installed."
+}
+ensure_jq
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SETTINGS="${HOME}/.claude/settings.json"
