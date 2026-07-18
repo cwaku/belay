@@ -94,7 +94,8 @@ if [ -f "${SRC}/plugins.json" ]; then
       all) CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}" ;;
       recommended) if [ "$def" = "y" ]; then CHOSEN_PLUGINS+=("$key"); echo "  + ${key}${tag}"; fi ;;
       interactive)
-        if ask "  ${key}${tag}, install? [${def^}/$([ "$def" = y ] && echo n || echo y)]" "$def"; then
+        hint=$([ "$def" = y ] && echo "[Y/n]" || echo "[N/y]")
+        if ask "  ${key}${tag}, install? ${hint}" "$def"; then
           CHOSEN_PLUGINS+=("$key")
         fi ;;
     esac

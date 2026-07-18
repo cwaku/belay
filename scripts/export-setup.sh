@@ -38,8 +38,11 @@ SETTINGS="${HOME}/.claude/settings.json"
 KIT_SKILLS=(task-router codex-plan-review codex-gate-review handoff-checkpoint)
 # Extra skills to leave out of the export (space-separated), e.g. skills your
 # OS or another installer manages per-machine: EXPORT_SKIP="omarchy" ./export-setup.sh
-read -ra SKIP_SKILLS <<< "${EXPORT_SKIP:-}"
-KIT_SKILLS+=("${SKIP_SKILLS[@]}")
+# Guard the append: expanding an empty array under `set -u` errors on bash 3.2.
+if [ -n "${EXPORT_SKIP:-}" ]; then
+  read -ra SKIP_SKILLS <<< "$EXPORT_SKIP"
+  KIT_SKILLS+=("${SKIP_SKILLS[@]}")
+fi
 
 mkdir -p "${OUT}/skills"
 
