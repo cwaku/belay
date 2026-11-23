@@ -28,10 +28,10 @@ That's it. The answer is saved and the question never comes back for that projec
 
 | Skill | What it does for you |
 |---|---|
-| `task-router` | Decides who does each piece of work. **Project tier** (T1 production, T2 personal product, T3 throwaway) times **task level** (L1 mechanical up to L4 critical) picks the model, the effort, and how much review the result gets. When a worker struggles, it retries at higher effort before reaching for a bigger model. Task types that keep reviewing clean get routed cheaper over time. |
+| `task-router` | Decides who does each piece of work. **Project tier** (T1 production, T2 personal product, T3 throwaway) times **task level** (L1 mechanical up to L4 critical) picks the model, the effort, and how much review the result gets. Reviewers are routed too, so a spot-check runs cheaper than a phase gate. When a worker struggles, it retries at higher effort before reaching for a bigger model. Task types that keep reviewing clean get routed cheaper over time. |
 | `codex-plan-review` | Gets a second opinion on your plan before any work is dispatched. The reviewer is OpenAI Codex, a different model family on purpose. Only blocking findings (correctness, security, unmet requirements) can send a plan back, there's a hard cap of two revision rounds, and every finding is checked against the actual code before it changes anything. |
 | `codex-gate-review` | The same independent reviewer, at the moments that matter: phase gates and L4 tasks. It reads your real diff, your executed test output, and your acceptance criteria. Never summaries. If Codex is down, you're told and the internal review carries on alone. An outage never blocks a merge. |
-| `handoff-checkpoint` | Writes down where things stand after each batch of work: the task graph, decisions made, test state, and a required "next action" line. A resuming session checks git before redispatching anything, so completed work is recognized instead of repeated. |
+| `handoff-checkpoint` | Writes down where things stand after each batch of work: the task graph, decisions made, test state, a ledger of the reviews that ran, and a required "next action" line. A resuming session checks git before redispatching anything, so completed work is recognized instead of repeated. |
 
 ## Install
 
@@ -59,7 +59,7 @@ Mostly, you won't notice it. You prompt the way you always have, and Belay activ
 
 - **A project you've already tiered:** routing is silent. The decision shows up in the task brief and that's all you see.
 - **A new project:** one tier question, then never again.
-- **Small direct work**, like "fix this typo": nothing activates, which is correct. Worth knowing: work you don't delegate runs on your session model. Belay manages the work you hand off, not the conversation itself.
+- **Small direct work**, like "fix this typo": nothing activates, which is correct. Worth knowing: work you don't delegate runs on your session model, and Belay never switches that model for you. When it routes, it compares the session model to the project's tier (T1 `fable`, T2 `opus`, T3 `sonnet`) and tells you once if you're running above it. Your choice always wins.
 - **A big feature in a production project:** plan review, then routed dispatch, checkpoints along the way, a gate review at the end, and the merge always stops and asks you. On a clean run your total involvement is the original prompt and one yes.
 
 One honest caveat. Activation is instruction-driven, not mechanically enforced, so a session can occasionally blow past it. Saying "use task-router" fixes it on the spot. If you want hard enforcement, add a `PreToolUse` hook that flags any Agent call missing an explicit model.
@@ -112,12 +112,13 @@ Each project declares its tier in `<project>/.claude/workflow.md` ([template](te
 ## What you need
 
 - Claude Code with plugin support.
-- Optionally, the [Codex CLI](https://github.com/openai/codex), authenticated with `codex login`, for the two review skills. Without it they say so and fall back to internal review. Nothing blocks. Any other reviewer CLI can be swapped in by editing two command lines.
+- Optionally, the [Codex CLI](https://github.com/openai/codex), authenticated with `codex login`, for the two review skills. Without it they say so and fall back to internal review. Nothing blocks. The review skills call `jq` to find the newest Astra model in the Codex CLI's own model list, and `timeout` (or `gtimeout`) to cut off a hung review. Without `jq` they use Codex's configured default, and without a timeout command the review runs with no cap. Any other reviewer CLI can be swapped in by editing two command lines.
 
 ## Why it's built this way
 
 - **Why a different model family for review?** A model reviewing its own family's output shares its blind spots. Independence is what makes the second opinion worth having, and it's spent only where it pays: plans and gates.
 - **Why capped review loops?** Two reviewers disagreeing without a cap is an infinite approval loop. Two rounds, then you decide, and overrides are logged rather than silent.
+- **Why no model versions?** The skills name models by family (`sonnet`, `opus`, `fable`), and the Codex skills look up their model at run time. Nothing in Belay needs editing when a new version ships.
 - **What's deliberately missing:** learned routing, agent federation, background workers, external state stores. Heavier platforms exist if that's what you want. Belay stays small on purpose, because every piece it doesn't have is a piece that can't break, drift, or need maintenance.
 - Project-specific skills (a repo's production-shape checks, its environment preflight) belong in that repo's own `.claude/skills/`, versioned with the code they protect. Not here.
 

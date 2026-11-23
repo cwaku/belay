@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "belay",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "source": "./plugin",
       "description": "Route every delegated task by risk tier × complexity level, get an independent review at plans and phase gates, and keep progress resumable with checkpoints"
     }
