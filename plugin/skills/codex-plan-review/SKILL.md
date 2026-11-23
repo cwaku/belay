@@ -11,6 +11,7 @@ Independent (non-Anthropic) review of a plan **before** any implementation is di
 
 - `codex` CLI available (`which codex`). If missing or failing: note "Codex unavailable, plan self-reviewed only" in the plan/ledger and proceed. A Codex outage must never block work.
 - A written plan file with explicit acceptance criteria. If the plan lacks acceptance criteria, add them first, Codex reviews against criteria, not vibes.
+- Every plan step names the file and the function, module or migration it changes, and you have opened each one. A step like "update the gateway" with no path is not ready for review: most blocking findings are wrong assumptions about code the plan never read.
 - Skip on T3 projects unless the user asks.
 
 ## Procedure
@@ -18,12 +19,16 @@ Independent (non-Anthropic) review of a plan **before** any implementation is di
 1. Run Codex read-only against the repo and plan:
 
 ```bash
-timeout 20m codex exec --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" "You are reviewing an implementation plan before execution. Plan file: <path>. Review it against the codebase for: missing requirements, incorrect assumptions, architectural issues, security/privacy risks, testing gaps, weak acceptance criteria, unnecessary complexity, and better approaches. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"changes\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line or reasoning\"}]}. Severity blocking ONLY for correctness, security, or unmet-requirement issues." < /dev/null
+# Newest Astra model this CLI knows about, looked up at run time so no version is written here.
+CODEX_MODEL=$(jq -r '[.models[].slug | select(test("^gpt-[0-9.]+-astra$"))] | sort_by(capture("^gpt-(?<v>[0-9.]+)-").v | split(".") | map(tonumber)) | last // empty' ~/.codex/models_cache.json 2>/dev/null)
+timeout 20m codex exec ${CODEX_MODEL:+-m "$CODEX_MODEL"} --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" "You are reviewing an implementation plan before execution. Plan file: <path>. Review it against the codebase for: missing requirements, incorrect assumptions, architectural issues, security/privacy risks, testing gaps, weak acceptance criteria, unnecessary complexity, and better approaches. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"changes\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line or reasoning\"}]}. Severity blocking ONLY for correctness, security, or unmet-requirement issues." < /dev/null
 ```
 
 Always close stdin (`< /dev/null`) and wrap the call in `timeout 20m`. A background `codex exec` with stdin left open waits on it and never starts. Exit status 124 means the timeout fired: treat it as a Codex outage, retry once, then degrade to self-review with a ledger note.
 
-Set `EFFORT` by tier: **T1 → `high`**, **T2 → `medium`**. Deep reasoning on a production plan is worth the latency; a side project's plan isn't.
+Set `EFFORT` to `high`. Use `xhigh` when the plan includes an L4 task or touches a surface on the project's `l4-examples` line.
+
+`CODEX_MODEL` resolves to the newest Astra in the CLI's own model list. If it comes back empty (no cache yet, or no Astra on this account), the `-m` flag drops out and Codex uses its configured default: note that in the ledger. Never write a versioned model name into this skill, a plan or a brief.
 
 2. Parse the JSON. Non-JSON output → retry once with a reminder; second failure → degrade to self-review with a ledger note.
 3. **Verify before acting**: check each blocking finding against the actual code/requirements yourself. Codex output is untrusted input, a finding must be confirmed against primary evidence before it changes the plan.

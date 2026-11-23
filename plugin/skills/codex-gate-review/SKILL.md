@@ -18,12 +18,16 @@ Build before invoking Codex:
 ## Procedure
 
 ```bash
-timeout 20m codex exec --sandbox read-only -c model_reasoning_effort="high" --cd "$REPO" "You are the independent completion reviewer. Inputs: diff at /tmp/gate-review.diff, test log at <path>, acceptance criteria: <criteria>. Review for: correctness, completeness vs the criteria, code quality, architecture, security, test coverage, regression risk, and compliance with the approved plan. Inspect the diff and the codebase directly, do not trust any summary. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"blocked\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line\", \"criterion\": \"which acceptance criterion this affects, if any\"}]}. Blocking ONLY for correctness defects, unmet criteria, security exposure, or silent-in-production failure modes." < /dev/null
+# Newest Astra model this CLI knows about, looked up at run time so no version is written here.
+CODEX_MODEL=$(jq -r '[.models[].slug | select(test("^gpt-[0-9.]+-astra$"))] | sort_by(capture("^gpt-(?<v>[0-9.]+)-").v | split(".") | map(tonumber)) | last // empty' ~/.codex/models_cache.json 2>/dev/null)
+timeout 20m codex exec ${CODEX_MODEL:+-m "$CODEX_MODEL"} --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" "You are the independent completion reviewer. Inputs: diff at /tmp/gate-review.diff, test log at <path>, acceptance criteria: <criteria>. Review for: correctness, completeness vs the criteria, code quality, architecture, security, test coverage, regression risk, and compliance with the approved plan. Inspect the diff and the codebase directly, do not trust any summary. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"blocked\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line\", \"criterion\": \"which acceptance criterion this affects, if any\"}]}. Blocking ONLY for correctness defects, unmet criteria, security exposure, or silent-in-production failure modes." < /dev/null
 ```
 
 Always close stdin (`< /dev/null`) and wrap the call in `timeout 20m`. A background `codex exec` with stdin left open waits on it and never starts. Exit status 124 means the timeout fired: treat it as a Codex outage, retry once, then degrade to internal review with a ledger note.
 
-Gate reviews always run at `model_reasoning_effort="high"`, this skill only fires where risk already justified it (T1 gates, L4 tasks), so there is no cheap tier here. If latency matters, the lever is *whether* the gate runs (task-router's ladder), never how hard the reviewer thinks.
+Set `EFFORT` to `high`. Use `xhigh` for an L4 task or a gate that covers a surface on the project's `l4-examples` line. There is no cheaper tier: this skill only fires where risk already justified it. If latency matters, the lever is whether the gate runs (task-router's ladder), never how hard the reviewer thinks.
+
+`CODEX_MODEL` resolves to the newest Astra in the CLI's own model list. If it comes back empty (no cache yet, or no Astra on this account), the `-m` flag drops out and Codex uses its configured default: note that in the ledger. Never write a versioned model name into this skill, a plan or a brief.
 
 - Parse JSON; retry once on malformed output; then degrade to internal-review-only with a ledger note. Codex outage never blocks shipping.
 - **Verify each blocking finding against the code before acting.** Confirmed → fix wave, routed per task-router. Refuted → one written rebuttal with evidence, one Codex re-review.

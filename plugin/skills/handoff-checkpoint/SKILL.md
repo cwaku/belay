@@ -22,11 +22,12 @@ Priority order:
 - Phase/goal: <one line>
 - Task graph:
   - [x] T1 <name>, commit <sha>, verified
-  - [~] T2 <name>, dispatched (Sonnet, L2), brief at <path>, worktree <path>
+  - [~] T2 <name>, dispatched (sonnet/medium, L2), brief at <path>, worktree <path>
   - [ ] T3 <name>, pending, blocked-on: T2
 - Decisions this wave: <q → choice → why → by user|orchestrator>
 - Validation state: <tests last run, result, command>
 - Reviews: <internal/codex verdicts + open findings>
+- Review ledger: <one line per review this wave: task type, level, reviewer route, blocking findings count>
 - Next action: <the single next step a resuming session should take>
 ```
 
