@@ -18,8 +18,10 @@ Build before invoking Codex:
 ## Procedure
 
 ```bash
-codex exec --sandbox read-only -c model_reasoning_effort="high" --cd "$REPO" "You are the independent completion reviewer. Inputs: diff at /tmp/gate-review.diff, test log at <path>, acceptance criteria: <criteria>. Review for: correctness, completeness vs the criteria, code quality, architecture, security, test coverage, regression risk, and compliance with the approved plan. Inspect the diff and the codebase directly, do not trust any summary. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"blocked\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line\", \"criterion\": \"which acceptance criterion this affects, if any\"}]}. Blocking ONLY for correctness defects, unmet criteria, security exposure, or silent-in-production failure modes."
+timeout 20m codex exec --sandbox read-only -c model_reasoning_effort="high" --cd "$REPO" "You are the independent completion reviewer. Inputs: diff at /tmp/gate-review.diff, test log at <path>, acceptance criteria: <criteria>. Review for: correctness, completeness vs the criteria, code quality, architecture, security, test coverage, regression risk, and compliance with the approved plan. Inspect the diff and the codebase directly, do not trust any summary. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"blocked\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line\", \"criterion\": \"which acceptance criterion this affects, if any\"}]}. Blocking ONLY for correctness defects, unmet criteria, security exposure, or silent-in-production failure modes." < /dev/null
 ```
+
+Always close stdin (`< /dev/null`) and wrap the call in `timeout 20m`. A background `codex exec` with stdin left open waits on it and never starts. Exit status 124 means the timeout fired: treat it as a Codex outage, retry once, then degrade to internal review with a ledger note.
 
 Gate reviews always run at `model_reasoning_effort="high"`, this skill only fires where risk already justified it (T1 gates, L4 tasks), so there is no cheap tier here. If latency matters, the lever is *whether* the gate runs (task-router's ladder), never how hard the reviewer thinks.
 
