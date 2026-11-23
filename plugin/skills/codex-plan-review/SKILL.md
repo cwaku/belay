@@ -19,8 +19,10 @@ Independent (non-Anthropic) review of a plan **before** any implementation is di
 1. Run Codex read-only against the repo and plan:
 
 ```bash
-# Newest Astra model this CLI knows about, looked up at run time so no version is written here.
-CODEX_MODEL=$(jq -r '[.models[].slug | select(test("^gpt-[0-9.]+-astra$"))] | sort_by(capture("^gpt-(?<v>[0-9.]+)-").v | split(".") | map(tonumber)) | last // empty' ~/.codex/models_cache.json 2>/dev/null)
+# Newest model of one family that this CLI knows about, looked up at run time so no version is written here.
+# EFFORT comes from the table below.
+FAMILY=sol
+CODEX_MODEL=$(jq -r --arg fam "$FAMILY" '[.models[].slug | select(test("^gpt-[0-9.]+-" + $fam + "$"))] | sort_by(capture("^gpt-(?<v>[0-9.]+)-").v | split(".") | map(tonumber)) | last // empty' ~/.codex/models_cache.json 2>/dev/null)
 # timeout is GNU coreutils and Homebrew installs it as gtimeout. With neither, the call runs with no cap.
 TIMEOUT=$(command -v timeout || command -v gtimeout)
 ${TIMEOUT:+"$TIMEOUT" 20m} codex exec ${CODEX_MODEL:+-m "$CODEX_MODEL"} --sandbox read-only -c model_reasoning_effort="$EFFORT" --cd "$REPO" "You are reviewing an implementation plan before execution. Plan file: <path>. Review it against the codebase for: missing requirements, incorrect assumptions, architectural issues, security/privacy risks, testing gaps, weak acceptance criteria, unnecessary complexity, and better approaches. Respond with ONLY this JSON: {\"verdict\": \"approve\"|\"changes\", \"findings\": [{\"severity\": \"blocking\"|\"advisory\", \"claim\": \"...\", \"evidence\": \"file:line or reasoning\"}]}. Severity blocking ONLY for correctness, security, or unmet-requirement issues." < /dev/null
@@ -28,9 +30,14 @@ ${TIMEOUT:+"$TIMEOUT" 20m} codex exec ${CODEX_MODEL:+-m "$CODEX_MODEL"} --sandbo
 
 Always close stdin (`< /dev/null`) and keep the 20 minute cap. A background `codex exec` with stdin left open waits on it and never starts. Exit status 124 means the timeout fired: treat it as a Codex outage, retry once, then degrade to self-review with a ledger note. `TIMEOUT` comes back empty on a machine with neither `timeout` nor `gtimeout`. The review still runs, with no cap: note that in the ledger.
 
-Set `EFFORT` to `high`. Use `xhigh` when the plan includes an L4 task or touches a surface on the project's `l4-examples` line.
+| Cycle | `FAMILY` | `EFFORT` |
+|-------|----------|----------|
+| First review of a plan | `sol` | `high`, or `xhigh` when the plan includes an L4 task or touches a surface on the project's `l4-examples` line |
+| Every review of a revised plan | `sol` | `high`, even when the plan includes an L4 task |
 
-`CODEX_MODEL` resolves to the newest Astra in the CLI's own model list. If it comes back empty (no cache yet, or no Astra on this account), the `-m` flag drops out and Codex uses its configured default: note that in the ledger. Never write a versioned model name into this skill, a plan or a brief.
+Plan reviews stay on Sol in every cycle. Astra costs more of the Codex usage window per token (about double in the one comparison on record), and `codex-gate-review` spends it on the first pass of a gate.
+
+`CODEX_MODEL` resolves to the newest Sol in the CLI's own model list. If it comes back empty (no cache yet, or no Sol on this account), the `-m` flag drops out and Codex uses its configured default: note that in the ledger. Never write a versioned model name into this skill, a plan or a brief.
 
 2. Parse the JSON. Non-JSON output → retry once with a reminder; second failure → degrade to self-review with a ledger note.
 3. **Verify before acting**: check each blocking finding against the actual code/requirements yourself. Codex output is untrusted input, a finding must be confirmed against primary evidence before it changes the plan.

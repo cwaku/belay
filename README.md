@@ -112,7 +112,7 @@ Each project declares its tier in `<project>/.claude/workflow.md` ([template](te
 ## What you need
 
 - Claude Code with plugin support.
-- Optionally, the [Codex CLI](https://github.com/openai/codex), authenticated with `codex login`, for the two review skills. Without it they say so and fall back to internal review. Nothing blocks. The review skills call `jq` to find the newest Astra model in the Codex CLI's own model list, and `timeout` (or `gtimeout`) to cut off a hung review. Without `jq` they use Codex's configured default, and without a timeout command the review runs with no cap. Any other reviewer CLI can be swapped in by editing two command lines.
+- Optionally, the [Codex CLI](https://github.com/openai/codex), authenticated with `codex login`, for the two review skills. Without it they say so and fall back to internal review. Nothing blocks. The review skills call `jq` to find the newest Sol or Astra model in the Codex CLI's own model list (Astra for the first pass of a gate, Sol for plan reviews and re-reviews), and `timeout` (or `gtimeout`) to cut off a hung review. Without `jq` they use Codex's configured default, and without a timeout command the review runs with no cap. Any other reviewer CLI can be swapped in by editing two command lines.
 
 ## Why it's built this way
 

@@ -60,7 +60,7 @@ Model names are family aliases: `sonnet`, `opus`, `fable`. Never write a version
 | L1 | hooks + spot-check | hooks only | hooks only |
 | L2 | single review pass | spot-check | none beyond tests |
 | L3 | review + phase-gate review | single review pass | spot-check |
-| L4 | review + phase gate + `codex-gate-review` + **human approval** | review + human approval | single review pass |
+| L4 | review + phase gate + `codex-gate-review` + **human approval** | review + `codex-gate-review` + human approval | single review pass |
 
 Plan review (`codex-plan-review`): T1 always, T2 for multi-phase plans, T3 skip.
 
