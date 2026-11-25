@@ -29,7 +29,7 @@ That's it. The answer is saved and the question never comes back for that projec
 | Skill | What it does for you |
 |---|---|
 | `task-router` | Decides who does each piece of work. **Project tier** (T1 production, T2 personal product, T3 throwaway) times **task level** (L1 mechanical up to L4 critical) picks the model, the effort, and how much review the result gets. Reviewers are routed too, so a spot-check runs cheaper than a phase gate. When a worker struggles, it retries at higher effort before reaching for a bigger model. Task types that keep reviewing clean get routed cheaper over time. |
-| `codex-plan-review` | Gets a second opinion on your plan before any work is dispatched. The reviewer is OpenAI Codex, a different model family on purpose. Only blocking findings (correctness, security, unmet requirements) can send a plan back, there's a hard cap of two revision rounds, and every finding is checked against the actual code before it changes anything. |
+| `codex-plan-review` | Gets a second opinion on your plan before any work is dispatched. The reviewer is OpenAI Codex, a different model family on purpose. Only blocking findings (correctness, security, unmet requirements) can send a plan back, the loop stops at four passes and sooner if it stalls, and every finding is checked against the actual code before it changes anything. |
 | `codex-gate-review` | The same independent reviewer, at the moments that matter: phase gates and L4 tasks. It reads your real diff, your executed test output, and your acceptance criteria. Never summaries. If Codex is down, you're told and the internal review carries on alone. An outage never blocks a merge. |
 | `handoff-checkpoint` | Writes down where things stand after each batch of work: the task graph, decisions made, test state, a ledger of the reviews that ran, and a required "next action" line. A resuming session checks git before redispatching anything, so completed work is recognized instead of repeated. |
 
@@ -117,7 +117,7 @@ Each project declares its tier in `<project>/.claude/workflow.md` ([template](te
 ## Why it's built this way
 
 - **Why a different model family for review?** A model reviewing its own family's output shares its blind spots. Independence is what makes the second opinion worth having, and it's spent only where it pays: plans and gates.
-- **Why capped review loops?** Two reviewers disagreeing without a cap is an infinite approval loop. Two rounds, then you decide, and overrides are logged rather than silent.
+- **Why capped review loops?** Two reviewers disagreeing without a cap is an infinite approval loop. A loop gets a third and a fourth pass only while each one finds fewer confirmed problems than the last. When a refuted finding comes back or the count stops falling, you decide, and overrides are logged rather than silent.
 - **Why no model versions?** The skills name models by family (`sonnet`, `opus`, `fable`), and the Codex skills look up their model at run time. Nothing in Belay needs editing when a new version ships.
 - **What's deliberately missing:** learned routing, agent federation, background workers, external state stores. Heavier platforms exist if that's what you want. Belay stays small on purpose, because every piece it doesn't have is a piece that can't break, drift, or need maintenance.
 - Project-specific skills (a repo's production-shape checks, its environment preflight) belong in that repo's own `.claude/skills/`, versioned with the code they protect. Not here.

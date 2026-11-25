@@ -44,7 +44,19 @@ The first pass has no cheaper tier: this skill only fires where risk already jus
 
 ## Loop cap and completion
 
-- Maximum **2 total cycles**. Unresolved after that → user decides; record the override, rationale, and the dissenting finding in the ledger/PR description.
+A pass is one Codex run on the gate. After each pass, once its blocking findings are checked against the code, take the first row that matches:
+
+| After pass N | Next |
+|--------------|------|
+| Codex raised again a blocking finding it already got a written rebuttal for | Stop. The user decides |
+| Verdict `approve` | Codex is done. The gate still has to meet the last line of this section |
+| N is 2 or more, and this pass has as many confirmed blocking findings as pass N-1, or more | Stop. The user decides |
+| N is 4 | Stop. The user decides |
+| None of the above | Fix wave for the confirmed findings, a rebuttal for the refuted ones, then pass N+1 |
+
+Passes 3 and 4 are for gates where each pass finds fewer real defects than the one before. A finding that comes back after a rebuttal is a disagreement, and another pass will not settle it.
+
+- On a stop, present both positions with evidence. Record the user's override, the rationale, the findings still open and the number of confirmed blocking findings in each pass in the ledger/PR description. Never run a fifth pass.
 - A gate passes when: internal review clean (≥80-confidence findings fixed), Codex verdict `approve` (or documented user override), tests green with captured output, and the human confirms the merge. Merges are always human-confirmed.
 
 ## Security
