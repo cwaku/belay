@@ -40,6 +40,8 @@ The order is `sonnet`, then `opus`, then `fable`. If the session runs above its 
 
 Orchestrator-direct work is for L4, or for a task of about five edits or fewer. Anything larger at L1 to L3 goes to a worker at the routed model, even when doing it inline looks faster.
 
+On a `sonnet` session an L4 task goes to an `opus` worker, whatever its size. Orchestrator-direct there would run critical work below the `opus` that the L4 row calls for.
+
 ## Step 2: Level the task
 
 | Level | Criteria (any one qualifies) | Model | Effort |
@@ -47,7 +49,7 @@ Orchestrator-direct work is for L4, or for a task of about five edits or fewer. 
 | **L1 Mechanical** | Spec fully written; single file or pattern-following; failure obvious and cheap | `sonnet` | `low` |
 | **L2 Standard** | Defined feature, existing patterns, ≤3 modules, testable criteria | `sonnet` | `medium` |
 | **L3 Complex** | Ambiguous spec; cross-cutting (≥4 modules or a language/service boundary); concurrency; performance-sensitive; novel algorithm | `opus` | `high` |
-| **L4 Critical** | Irreversible actions, credentials/security, production user-facing surface, or failure that would be **silent** in production. Each project's `l4-examples` line names its own instances. | `opus` or orchestrator-direct | `high` |
+| **L4 Critical** | Irreversible actions, credentials/security, production user-facing surface, or failure that would be **silent** in production. Each project's `l4-examples` line names its own instances. | `opus`, or orchestrator-direct on an `opus` or `fable` session | `high` |
 
 Pass **both** `model` and `effort` explicitly on every Agent/Workflow call, an unconsidered effort is the same mistake as an unconsidered model, just smaller.
 
